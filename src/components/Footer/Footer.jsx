@@ -17,12 +17,12 @@ const Footer = () => {
             </div>
             <div className="footer-content-center">
                 <h2>COMPANY</h2>
-                <il>
+                <ul>
                     <li>Home</li>
                     <li>About us</li>
                     <li>Delivery</li>
                     <li>Privacy policy</li>
-                </il>
+                </ul>
             </div>
             <div className="footer-content-right">
                 <h2>GET IN TOUCH</h2>

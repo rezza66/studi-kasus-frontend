@@ -1,26 +1,37 @@
 import React, { useContext } from "react";
 import "./PlaceOrder.css";
-import { StoreContext } from "../../context/StoreContext";
+import { useSelector } from "react-redux";
 
 const PlaceOrder = () => {
-  const {getTotalCartAmount} = useContext(StoreContext)
+  const cartItems = useSelector((state) => state.cart.cartItems);
+  const foodList = useSelector((state) => state.products.foodList);
+
+  const getTotalCartAmount = () => {
+    let totalAmount = 0;
+    for (const item in cartItems) {
+      if (cartItems[item] > 0) {
+        let itemInfo = foodList.find((product) => product._id === item);
+        totalAmount += itemInfo.price * cartItems[item];
+      }
+    }
+    return totalAmount;
+  };
   return (
     <form className="place-order">
       <div className="place-order-left">
         <p className="title">Delivery Information</p>
         <div className="multi-fields">
-          <input type="text" placeholder="First name" />
-          <input type="text" placeholder="Last name" />
+          <input type="text" placeholder="Name" />
         </div>
         <input type="email" placeholder="Email address" />
-        <input type="text" placeholder="Street" />
+        <input type="text" placeholder="Detail address" />
         <div className="multi-fields">
-          <input type="text" placeholder="City" />
-          <input type="text" placeholder="State" />
+          <input type="text" placeholder="Provinsi" />
+          <input type="text" placeholder="Kabupaten" />
         </div>
         <div className="multi-fields">
-          <input type="text" placeholder="Zip code" />
-          <input type="text" placeholder="Country" />
+          <input type="text" placeholder="Kecamatan" />
+          <input type="text" placeholder="Kelurahan" />
         </div>
         <input type="text" placeholder="Phone" />
       </div>

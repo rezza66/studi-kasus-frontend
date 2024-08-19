@@ -1,11 +1,27 @@
-import React, { useContext } from "react";
+import React from "react";
 import "./Cart.css";
-import { StoreContext } from "../../context/StoreContext";
+import { useSelector, useDispatch } from 'react-redux';
+import { removeFromCart } from '../../redux/slices/cartSlice';
 import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
-  const { cartItems, food_list, removeFromCart, getTotalCartAmount } = useContext(StoreContext);
-  const navigate = useNavigate()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const cartItems = useSelector((state) => state.cart.cartItems);
+  const foodList = useSelector((state) => state.products.foodList);
+
+  const getTotalCartAmount = () => {
+    let totalAmount = 0;
+    for (const item in cartItems) {
+      if (cartItems[item] > 0) {
+        let itemInfo = foodList.find((product) => product._id === item);
+        totalAmount += itemInfo.price * cartItems[item];
+      }
+    }
+    return totalAmount;
+  };
+
   return (
     <div className="cart">
       <div className="cart-items">
@@ -20,17 +36,17 @@ const Cart = () => {
 
         <br />
         <hr />
-        {food_list.map((item, index) => {
+        {foodList.map((item) => {
           if (cartItems[item._id] > 0) {
             return (
-              <div>
+              <div key={item._id}>
                 <div className="cart-items-title cart-items-item">
                   <img src={item.image} alt="..." />
                   <p>{item.name}</p>
                   <p>${item.price}</p>
                   <p>{cartItems[item._id]}</p>
-                  <p>{item.price * cartItems[item._id]}</p>
-                  <p onClick={() => removeFromCart(item._id)} className="cross">
+                  <p>${item.price * cartItems[item._id]}</p>
+                  <p onClick={() => dispatch(removeFromCart(item._id))} className="cross">
                     x
                   </p>
                 </div>
@@ -38,6 +54,7 @@ const Cart = () => {
               </div>
             );
           }
+          return null; // Pastikan untuk mengembalikan null jika item tidak ada di cart
         })}
       </div>
       <div className="cart-bottom">
@@ -51,15 +68,15 @@ const Cart = () => {
             <hr />
             <div className="cart-total-details">
               <p>Delivery Fee</p>
-              <p>${getTotalCartAmount()===0?0:2}</p>
+              <p>${getTotalCartAmount() === 0 ? 0 : 2}</p>
             </div>
             <hr />
             <div className="cart-total-details">
               <b>Total</b>
-              <b>${getTotalCartAmount()===0?0:getTotalCartAmount()+2}</b>
+              <b>${getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 2}</b>
             </div>
           </div>
-          <button onClick={()=>navigate('/order')}>PROCEED TO CHECKOUT</button>
+          <button onClick={() => navigate('/order')}>PROCEED TO CHECKOUT</button>
         </div>
         <div className="cart-promocode">
           <div>
