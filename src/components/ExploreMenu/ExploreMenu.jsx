@@ -1,18 +1,36 @@
-import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchCategories, setCategory } from '../../redux/slices/menuSlice';
+import React, { useEffect, useState } from 'react';
 import './ExploreMenu.css';
 
-const ExploreMenu = () => {
-  const dispatch = useDispatch();
-  const category = useSelector((state) => state.menu.category || ''); // Tambahkan fallback default
-  const categories = useSelector((state) => state.menu.categories || []); // Tambahkan fallback default
-  const status = useSelector((state) => state.menu.status || 'idle'); // Tambahkan fallback default
-  const error = useSelector((state) => state.menu.error || '');
+const ExploreMenu = ({ onCategorySelect }) => {
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(''); // Mengganti nama variabel menjadi selectedCategory
+  const [status, setStatus] = useState('idle');
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    dispatch(fetchCategories());
-  }, [dispatch]);
+    const fetchCategories = async () => {
+      setStatus('loading');
+      try {
+        const response = await fetch('http://localhost:5000/api/categories');
+        if (!response.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+        const data = await response.json();
+        setCategories(data);
+        setStatus('succeeded');
+      } catch (err) {
+        setError(err.message || 'Failed to fetch categories');
+        setStatus('failed');
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const handleCategoryClick = (name) => {
+    setSelectedCategory(name); // Mengganti nama variabel menjadi selectedCategory
+    onCategorySelect(name); // Notify the parent component about the selected category
+  };
 
   if (status === 'loading') return <div>Loading...</div>;
   if (status === 'failed') return <div>Error: {error}</div>;
@@ -30,12 +48,12 @@ const ExploreMenu = () => {
         {categories.length > 0 ? (
           categories.map((item) => (
             <div
-              onClick={() => dispatch(setCategory(item.name))}
+              onClick={() => handleCategoryClick(item.name)}
               key={item._id}
               className="explore-menu-list-item"
             >
               <img
-                className={category === item.name ? 'active' : ''}
+                className={selectedCategory === item.name ? 'active' : ''} // Mengganti nama variabel menjadi selectedCategory
                 src={item.image}
                 alt={item.name}
               />
